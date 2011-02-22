@@ -4,7 +4,7 @@ from nose.tools import eq_, raises
 from fabric.decorators import hosts, roles
 from fabric.main import get_hosts, parse_arguments, _merge, _escape_split
 import fabric.state
-from fabric.state import _AttributeDict
+from fabric.state import AttributeDict
 
 from utils import mock_streams
 
@@ -57,7 +57,7 @@ fake_roles = {
 }
 
 @with_patched_object(
-    'fabric.state', 'env', _AttributeDict({'roledefs': fake_roles})
+    'fabric.state', 'env', AttributeDict({'roledefs': fake_roles})
 )
 def test_roles_decorator_by_itself():
     """
@@ -70,7 +70,7 @@ def test_roles_decorator_by_itself():
 
 
 @with_patched_object(
-    'fabric.state', 'env', _AttributeDict({'roledefs': fake_roles})
+    'fabric.state', 'env', AttributeDict({'roledefs': fake_roles})
 )
 def test_hosts_and_roles_together():
     """
@@ -118,7 +118,7 @@ def test_roles_decorator_expands_single_iterable():
 
 
 @with_patched_object(
-    'fabric.state', 'env', _AttributeDict({'roledefs': fake_roles})
+    'fabric.state', 'env', AttributeDict({'roledefs': fake_roles})
 )
 @raises(SystemExit)
 @mock_streams('stderr')
@@ -132,7 +132,7 @@ def test_aborts_on_nonexistent_roles():
 lazy_role = {'r1': lambda: ['a', 'b']}
 
 @with_patched_object(
-    'fabric.state', 'env', _AttributeDict({'roledefs': lazy_role})
+    'fabric.state', 'env', AttributeDict({'roledefs': lazy_role})
 )
 def test_lazy_roles():
     """
