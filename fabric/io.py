@@ -51,10 +51,7 @@ def output_loop(chan, which, capture):
         # Otherwise, we're in run/sudo and need to handle capturing and
         # prompts.
         else:
-            _prefix = "%s %s: " % (host_prefix, prefix)
-            # Allow prefix to be turned off.
-            if not env.output_prefix:
-                _prefix = ""
+            _prefix = "[%s] %s: " % (env.host_string, prefix)
             # Print to user
             if printing:
                 # Initial prefix

@@ -259,7 +259,6 @@ env = _EnvDict({
     'local_user': _get_system_username(),
     'multirun_child_timeout': 10,
     'multirun_pool_size': 10,
-    'output_prefix': True,
     'passwords': {},
     'path': '',
     'path_behavior': 'append',
