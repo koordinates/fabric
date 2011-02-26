@@ -85,7 +85,7 @@ def test_prompt_appends_space():
     """
     s = "This is my prompt"
     prompt(s)
-    eq_(sys.stdout.getvalue(), s + ' ')
+    eq_(sys.stdout.getvalue(), '\n%s \n' % s)
 
 
 @mock_streams('stdout')
@@ -97,7 +97,7 @@ def test_prompt_with_default():
     s = "This is my prompt"
     d = "default!"
     prompt(s, default=d)
-    eq_(sys.stdout.getvalue(), "%s [%s] " % (s, d))
+    eq_(sys.stdout.getvalue(), "\n%s [%s] \n" % (s, d))
     
 
 #

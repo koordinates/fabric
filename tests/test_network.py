@@ -221,17 +221,34 @@ class TestNetwork(FabricTest):
         output.everything = False
         with password_response(PASSWORDS[env.user], silent=False):
             run("ls /simple")
-        regex = r'^\[%s\] Login password: ' % env.host_string
+        regex = r'^\[%s\] Login password for user %(user)s:' % (env.host_string, env.user)
         assert_contains(regex, sys.stderr.getvalue())
 
 
     @mock_streams('stderr')
     @server(pubkeys=True)
-    def test_passphrase_prompt_displays_host_string(self):
+    def test_passphrase_prompt_displays_host_and_user_string(self):
         """
-        Passphrase prompt lines should include the user/host in question
+        Passphrase prompt lines should include the host/usr in question
         """
         env.password = None
+        env.no_agent = env.no_keys = True
+        env.key_filename = CLIENT_PRIVKEY
+        output.everything = False
+        with password_response(CLIENT_PRIVKEY_PASSPHRASE, silent=False):
+            run("ls /simple")
+        regex = r'^\[%s\] Login password for user %(user)s:' % (env.host_string, env.user)
+        assert_contains(regex, sys.stderr.getvalue())
+
+
+    @mock_streams('stderr')
+    @server(pubkeys=True)
+    def test_passphrase_prompt_does_not_display_username_when_user_not_present(self):
+        """
+        Passphrase prompt lines should not include the username when not set
+        """
+        env.password = None
+        env.user = None
         env.no_agent = env.no_keys = True
         env.key_filename = CLIENT_PRIVKEY
         output.everything = False
@@ -269,20 +286,21 @@ class TestNetwork(FabricTest):
         if display_output:
             expected = """
 [%(prefix)s] sudo: oneliner
-[%(prefix)s] Login password: 
+[%(prefix)s] Login password for user %(user)s:
 [%(prefix)s] out: sudo password:
 [%(prefix)s] out: Sorry, try again.
 [%(prefix)s] out: sudo password: 
 [%(prefix)s] out: result
-""" % {'prefix': env.host_string}
+""" % {'prefix': env.host_string, 'user': env.user}
         else:
             # Note lack of first sudo prompt (as it's autoresponded to) and of
             # course the actual result output.
             expected = """
 [%(prefix)s] sudo: oneliner
-[%(prefix)s] Login password: 
+[%(prefix)s] Login password for user %(user)s:
 [%(prefix)s] out: Sorry, try again.
-[%(prefix)s] out: sudo password: """ % {'prefix': env.host_string}
+[%(prefix)s] out: sudo password: """ % {'prefix': env.host_string,
+                                        'user': env.user}
         eq_(expected[1:], sys.stdall.getvalue())
 
 
@@ -306,7 +324,7 @@ class TestNetwork(FabricTest):
             sudo('twoliner')
         expected = """
 [%(prefix)s] sudo: oneliner
-[%(prefix)s] Login password: 
+[%(prefix)s] Login password for user %(user)s:
 [%(prefix)s] out: sudo password:
 [%(prefix)s] out: Sorry, try again.
 [%(prefix)s] out: sudo password: 
@@ -315,7 +333,7 @@ class TestNetwork(FabricTest):
 [%(prefix)s] out: sudo password:
 [%(prefix)s] out: result1
 [%(prefix)s] out: result2
-""" % {'prefix': env.host_string}
+""" % {'prefix': env.host_string, 'user': env.user}
         eq_(expected[1:], sys.stdall.getvalue())
 
 
@@ -343,12 +361,12 @@ class TestNetwork(FabricTest):
                 run('silent')
         expected = """
 [%(prefix)s] run: normal
-[%(prefix)s] Login password: 
+[%(prefix)s] Login password for user %(user)s:
 [%(prefix)s] out: foo
 [%(prefix)s] run: silent
 [%(prefix)s] run: normal
 [%(prefix)s] out: foo
-""" % {'prefix': env.host_string}
+""" % {'prefix': env.host_string, 'user': env.user}
         eq_(expected[1:], sys.stdall.getvalue())
 
 

@@ -8,7 +8,7 @@ from nose.tools import eq_
 from nose.tools import raises
 
 from fabric.state import output, env
-from fabric.utils import warn, indent, abort, puts, fastprint
+from fabric.utils import warn, indent, abort, puts, fastprint, Blank
 from fabric import utils # For patching
 from fabric.context_managers import settings
 from utils import mock_streams
@@ -123,8 +123,9 @@ def test_fastprint_calls_puts():
     fastprint() is just an alias to puts()
     """
     text = "Some output"
+
     fake_puts = Fake('puts', expect_call=True).with_args(
-        text=text, show_prefix=False, end="", flush=True
+        text, False, "", True, False, Blank
     )
     with patched_context(utils, 'puts', fake_puts):
         try:
