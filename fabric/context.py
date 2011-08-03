@@ -21,6 +21,7 @@ from fabric.context_managers import settings
 from fabric.operations import Blank, execute, local, reboot, run, sudo
 from fabric.state import env, output
 from fabric.utils import abort, fastprint, indent, warn
+from fabric import network
 
 try:
     from errno import EAGAIN, EINTR, EPIPE
@@ -407,6 +408,8 @@ class ContextRunner(object):
                     write(to_child, pack('H', idx))
                 else:
                     atfork()
+                    # reset connection cache
+                    network.connections = network.HostConnectionCache()
                     def die(*args):
                         if quiet_exit:
                             output.status = False
