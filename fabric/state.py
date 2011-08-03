@@ -6,6 +6,7 @@ import os
 import sys
 
 from optparse import make_option
+import UserDict
 
 from fabric.colors import blue, cyan, green, red, yellow
 from fabric.version import get_version
@@ -26,7 +27,7 @@ win32 = (sys.platform == 'win32')
 # Environment dictionary - support structures
 # 
 
-class AttributeDict(dict):
+class AttributeDict(object, UserDict.DictMixin):
     """
     Dictionary subclass enabling attribute lookup/assignment of keys/values.
 
@@ -40,6 +41,32 @@ class AttributeDict(dict):
         'not bar'
 
     """
+    def __init__(self, dict=None, **kwargs):
+        self.__dict__['_data'] = {}
+        if dict is not None:
+            self.update(dict)
+        if len(kwargs):
+            self.update(kwargs)
+
+    def __getitem__(self, key):
+        v = self._data[key]
+        if isinstance(v, dict) and not isinstance(v, AttributeDict):
+            # magically convert inner dicts into attributedicts
+            self[key] = v = AttributeDict(v)
+        return v
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
+
+    def __delitem__(self, key):
+        del self._data[key]
+
+    def keys(self):
+        return self._data.keys()
+
+    def copy(self):
+        return AttributeDict(self._data)
+
     def __getattr__(self, key):
         try:
             return self[key]
@@ -325,13 +352,13 @@ class _AliasDict(AttributeDict):
     overlap will result in duplicate keys in the resulting list.
     """
     def __init__(self, arg=None, aliases=None):
+        self.__dict__['aliases'] = aliases
         init = super(_AliasDict, self).__init__
         if arg is not None:
             init(arg)
         else:
             init()
         # Can't use super() here because of AttributeDict's setattr override
-        dict.__setattr__(self, 'aliases', aliases)
 
     def __setitem__(self, key, value):
         if key in self.aliases:
