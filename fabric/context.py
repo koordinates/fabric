@@ -15,8 +15,6 @@ from time import time
 from traceback import format_exc
 from uuid import uuid4
 
-from Crypto.Random import atfork
-
 from fabric.context_managers import settings
 from fabric.operations import Blank, execute, local, reboot, run, sudo
 from fabric.state import env, output
@@ -410,9 +408,17 @@ class ContextRunner(object):
                     idx += 1
                     write(to_child, pack('H', idx))
                 else:
-                    atfork()
+                    # re-init the PRNG
+                    try:
+                        import Crypto.Random
+                        Crypto.Random.atfork()
+                    except ImportError:
+                        # pycrypto versions without Random do not detect the missing atfork() call
+                        pass
+
                     # reset connection cache
                     network.connections = network.HostConnectionCache()
+
                     def die(*args):
                         if quiet_exit:
                             output.status = False
