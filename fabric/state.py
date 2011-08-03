@@ -77,6 +77,11 @@ class AttributeDict(object, UserDict.DictMixin):
     def __setattr__(self, key, value):
         self[key] = value
 
+    def __str__(self):
+        return str(self._data)
+
+    def __repr__(self):
+        return repr(self._data)
 
 class _EnvDict(AttributeDict):
     """Environment dictionary object."""
