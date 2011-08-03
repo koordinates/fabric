@@ -93,7 +93,10 @@ class WarningBoolean(object):
     """Proxy boolean to env.warning."""
 
     def __bool__(self):
-        return env.warn_only
+        if isinstance(env.warn_only, WarningBoolean):
+            return False
+        else:
+            return bool(env.warn_only)
 
     __nonzero__ = __bool__
 
