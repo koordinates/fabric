@@ -590,7 +590,7 @@ class ContextRunner(object):
 
     def select(self, filter):
         if isinstance(filter, int):
-            return ContextRunner(settings=sample(self._settings, count))
+            return ContextRunner(settings=sample(self._settings, filter))
         return ContextRunner(settings=filter(self._settings[:]))
 
     @property
