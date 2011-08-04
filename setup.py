@@ -38,7 +38,9 @@ setup(
     packages=find_packages(),
     test_suite='nose.collector',
     tests_require=['nose', 'fudge'],
-    install_requires=['pycrypto %s' % PYCRYPTO, 'paramiko >=1.7.6', 'optcomplete', 'pyyaml'],
+    #install_requires=['pycrypto %s' % PYCRYPTO, 'paramiko >=1.7.6', 'optcomplete', 'pyyaml'],
+    # optcomplete requirement fights with python-optcomplete in Lucid
+    install_requires=['pycrypto %s' % PYCRYPTO, 'paramiko >=1.7.6', 'pyyaml'],
     entry_points={
         'console_scripts': [
             'fab = fabric.main:main',
