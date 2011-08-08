@@ -4,6 +4,7 @@ Convenience decorators for use in fabfiles.
 
 from functools import wraps
 from fabric.utils import warn
+from fabric.context_managers import settings
 
 
 def task(*args, **kwargs):
@@ -11,7 +12,7 @@ def task(*args, **kwargs):
     task.used = 1
     display = kwargs.get('display', 1)
     if args:
-        if hasattr(args[0], '__call__'):
+        if callable(args[0]):
             func = args[0]
             func.__fabtask__ = 1
             if not display:
@@ -23,11 +24,18 @@ def task(*args, **kwargs):
     else:
         ctx = ()
     def __task(__func):
-        __func.__ctx__ = ctx
-        __func.__fabtask__ = 1
+        # set the context
+        def dec(*args, **kwargs):
+            with settings(ctx=ctx):
+                return __func(*args, **kwargs)
+
+        dec.__ctx__ = ctx
+        dec.__fabtask__ = 1
+        dec.__doc__ = __func.__doc__
+        dec.__name__ = __func.__name__
         if not display:
-            __func.__hide__ = 1
-        return __func
+            dec.__hide__ = 1
+        return dec
     return __task
 
 task.used = None
