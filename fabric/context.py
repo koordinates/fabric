@@ -417,7 +417,7 @@ class ContextRunner(object):
                         pass
 
                     # reset connection cache
-                    network.connections = network.HostConnectionCache()
+                    network.connections.clear()
 
                     def die(*args):
                         if quiet_exit:
