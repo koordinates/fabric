@@ -33,6 +33,12 @@ __all__ = [
 
 def _wrap_with(code):
     def inner(text, bold=False):
+        import sys
+        from fabric.state import env
+
+        if not env.colors or not sys.stdout.isatty():
+            return text
+
         c = code
         if bold:
             c = "1;%s" % c
@@ -41,6 +47,12 @@ def _wrap_with(code):
 
 def _bold_wrap_with(code):
     def inner(text):
+        import sys
+        from fabric.state import env
+
+        if not env.colors or not sys.stdout.isatty():
+            return text
+
         return "\033[1;%sm%s\033[0m" % (code, text)
     return inner
 
