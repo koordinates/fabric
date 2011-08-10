@@ -33,6 +33,7 @@ def task(*args, **kwargs):
         dec.__fabtask__ = 1
         dec.__doc__ = __func.__doc__
         dec.__name__ = __func.__name__
+        dec._decorated = __func
         if not display:
             dec.__hide__ = 1
         return dec
@@ -132,4 +133,5 @@ def run_once(func):
         if not hasattr(decorated, 'return_value'):
             decorated.return_value = func(*args, **kwargs)
         return decorated.return_value
+    decorated._decorated = func
     return decorated

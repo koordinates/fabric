@@ -11,6 +11,7 @@ to individuals leveraging Fabric as a library, should be kept elsewhere.
 
 import os
 import sys
+import inspect
 
 from fnmatch import fnmatch
 from optcomplete import ListCompleter, autocomplete
@@ -368,15 +369,28 @@ def display_command(command):
     if command not in commands:
         abort("Command '%s' not found, exiting." % cmd_string)
     cmd = commands[command]
+
+    # figure out arg spec
+    while hasattr(cmd, '_decorated'):
+        # descend through decorators
+        cmd = cmd._decorated
+    argspec = inspect.getargspec(cmd)
+    if argspec[0]:
+        args = "Arguments: " + inspect.formatargspec(argspec[0], None, None, argspec[3])[1:-1]
+    else:
+        args = "Arguments: None"
+
     # Print out nicely presented docstring if found
     if cmd.__doc__:
         print("Displaying detailed information for command '%s':" % cmd_string)
+        print(indent(args))
         print('')
         print(indent(cmd.__doc__, strip=True))
         print('')
     # Or print notice if not
     else:
         print("No detailed information available for command '%s':" % cmd_string)
+        print(indent(args))
     sys.exit(0)
 
 
