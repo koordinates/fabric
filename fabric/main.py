@@ -375,8 +375,8 @@ def display_command(command):
         # descend through decorators
         cmd = cmd._decorated
     argspec = inspect.getargspec(cmd)
-    if argspec[0]:
-        args = "Arguments: " + inspect.formatargspec(argspec[0], None, None, argspec[3])[1:-1]
+    if filter(lambda x: x, argspec):
+        args = "Arguments: " + inspect.formatargspec(*argspec)[1:-1]
     else:
         args = "Arguments: None"
 
