@@ -163,7 +163,7 @@ class ContextRunner(object):
         if kwargs and 'settings' in kwargs:
             self.ctx = ('<sample>',)
             self._settings = kwargs['settings']
-        if args:
+        elif args:
             if len(args) == 1 and not isinstance(args[0], basestring):
                 args = tuple(args[0])
             self.ctx = args
