@@ -98,7 +98,7 @@ def get_settings(
         get_host_info = get_settings.get_host_info
 
     # Loop through the contexts gathering host/settings.
-    responses = []; out = responses.append
+    responses = {}
     for context in contexts:
 
         # Handle composite contexts.
@@ -115,20 +115,20 @@ def get_settings(
                 if host in additional:
                     resp = get_host_info(host, base)
                     resp.update(additional[host])
-                    out(resp)
+                    responses[host] = resp
                 else:
-                    out(get_host_info(host, base))
+                    responses[host] = get_host_info(host, base)
 
         # Handle hosts.
         elif ('.' in context) or (context == 'localhost'):
-            out(get_host_info(context))
+            responses[host] = get_host_info(context)
 
         else:
             base = config[context].copy()
             hosts = base.pop('hosts')
             for host in hosts:
                 if isinstance(host, basestring):
-                    out(get_host_info(host, base))
+                    responses[host] = get_host_info(host, base)
                 else:
                     if len(host) > 1:
                         raise ValueError(
@@ -138,6 +138,6 @@ def get_settings(
                     host, additional = host.items()[0]
                     resp = get_host_info(host, base)
                     resp.update(additional)
-                    out(resp)
+                    responses[host] = resp
 
-    return cache.setdefault(contexts, responses)
+    return cache.setdefault(contexts, responses.values())
