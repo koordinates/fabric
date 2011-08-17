@@ -121,7 +121,7 @@ def get_settings(
 
         # Handle hosts.
         elif ('.' in context) or (context == 'localhost'):
-            responses[host] = get_host_info(context)
+            responses[context] = get_host_info(context)
 
         else:
             base = config[context].copy()
