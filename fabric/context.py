@@ -3,6 +3,7 @@
 
 import atexit
 import sys
+import exceptions
 
 from cPickle import dumps, loads
 from math import ceil
@@ -325,7 +326,7 @@ class ContextRunner(object):
     if forkable:
 
         def multilocal(
-            self, command, capture=True, dir=None, format=Blank, warn_only=True,
+            self, command, capture=True, dir=None, format=Blank, warn_only=False,
             condensed=False, quiet_exit=True, laggards_timeout=None,
             wait_for=None
             ):
@@ -339,7 +340,7 @@ class ContextRunner(object):
 
         def multisudo(
             self, command, shell=True, pty=True, combine_stderr=True, user=None,
-            dir=None, format=Blank, warn_only=True, condensed=False,
+            dir=None, format=Blank, warn_only=False, condensed=False,
             quiet_exit=True, laggards_timeout=None, wait_for=None
             ):
             def run_sudo():
@@ -354,7 +355,7 @@ class ContextRunner(object):
 
         def multirun(
             self, command, shell=True, pty=True, combine_stderr=True, dir=None,
-            format=Blank, warn_only=True, condensed=False, quiet_exit=True,
+            format=Blank, warn_only=False, condensed=False, quiet_exit=True,
             laggards_timeout=None, wait_for=None
             ):
             settings_list = self._settings
@@ -447,8 +448,10 @@ class ContextRunner(object):
                                         handle_failure(command, warn_only)
                                         response = error
                             else:
+                                # we always set warn_only=True for single commands here, so that it
+                                # gets handled/output properly after the multirun return happens
                                 with settings(
-                                    ctx=ctx, warn_only=warn_only,
+                                    ctx=ctx, warn_only=True,
                                     **settings_list[idx]
                                     ):
                                     response = run(
@@ -609,13 +612,13 @@ class ContextRunner(object):
 
 def failed(responses):
     """Utility function that returns True if any of the responses failed."""
-    return any(isinstance(resp, Exception) or resp.failed for resp in responses)
+    return any(isinstance(resp, exceptions.BaseException) or getattr(resp, 'failed', False) for resp in responses)
 
 
 def succeeded(responses):
     """Utility function that returns True if the responses all succeeded."""
     return all(
-        (not isinstance(resp, Exception)) and resp.succeeded
+        ((not isinstance(resp, exceptions.BaseException)) and getattr(resp, 'succeeded', True))
         for resp in responses
         )
 
