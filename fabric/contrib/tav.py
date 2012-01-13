@@ -119,11 +119,7 @@ def get_settings(
                 else:
                     responses[host] = get_host_info(host, base)
 
-        # Handle hosts.
-        elif ('.' in context) or (context == 'localhost'):
-            responses[context] = get_host_info(context)
-
-        else:
+        elif context in config:
             base = config[context].copy()
             hosts = base.pop('hosts')
             for host in hosts:
@@ -139,5 +135,10 @@ def get_settings(
                     resp = get_host_info(host, base)
                     resp.update(additional)
                     responses[host] = resp
+
+        # hosts.
+        else:
+            responses[context] = get_host_info(context)
+
 
     return cache.setdefault(contexts, responses.values())
